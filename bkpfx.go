@@ -1,10 +1,12 @@
 package main
 
 import ( 
+  "bufio"
   "fmt"
   "io/ioutil"
   "log"
   "os/exec"
+//  "regexp"
   "syscall"
 )
 
@@ -24,6 +26,23 @@ func main(){
   }
   fmt.Print(string(out))
   
+
+  fmt.Println( "-------Alernative-----" )
+  cmd := exec.Command( "/usr/sbin/postconf", "-n" )
+  stdout, e := cmd.StdoutPipe()
+  cmd.Start()
+  r := bufio.NewReader(stdout)
+  var line []byte ;
+  for ; e == nil ; line, _, e = r.ReadLine() {
+    fmt.Println( string(line) )
+  }
+  fmt.Println( "-----------------------" )
+
+  /*
+  rxlime := regexp.Must
+  re := regexp.MustCompile( `^(.+)\s*=\s*(.*)$` )
+  */
+
   files, e := ioutil.ReadDir( cfgdir )
   if ( e!= nil ) {
     fmt.Printf( "ReadDir %s failed: %s\n", cfgdir, e.Error() )
