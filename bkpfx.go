@@ -18,7 +18,7 @@ func main(){
   }
   // copy files: /etc/postfix directory + possibly /etc/aliases
   // start postconf and read output
-  out,e := exec.Command( "/usr/sbin/postconf", "-d" ).Output()
+  out,e := exec.Command( "/usr/sbin/postconf", "-n" ).Output()
   if ( e != nil ) {
     log.Fatal(e)
   }
