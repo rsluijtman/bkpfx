@@ -36,6 +36,9 @@ func main(){
   for ; e == nil ; line, _, e = r.ReadLine() {
     fmt.Println( string(line) )
   }
+  if e := cmd.Wait(); e != nil {
+    fmt.Println( e )
+  }
   fmt.Println( "-----------------------" )
 
   /*
