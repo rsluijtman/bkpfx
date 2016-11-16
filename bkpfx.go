@@ -4,9 +4,8 @@ import (
   "bufio"
   "fmt"
   "io/ioutil"
-  "log"
   "os/exec"
-//  "regexp"
+  "regexp"
   "syscall"
 )
 
@@ -19,41 +18,29 @@ func main(){
     syscall.Exit( 1 )
   }
   // copy files: /etc/postfix directory + possibly /etc/aliases
+
   // start postconf and read output
+
   cmd := exec.Command( "/usr/sbin/postconf", "-n" )
-  out,e := cmd.Output()
-  if ( e != nil ) {
-    log.Fatal(e)
-  }
-
-  if e = cmd.Wait() ; e != nil {
-    fmt.Println( e )
-  }
-
-  fmt.Print(string(out))
-  
-
-  fmt.Println( "-------Alernative-----" )
-  cmd = exec.Command( "/usr/sbin/postconf", "-n" )
   stdout, e := cmd.StdoutPipe()
   cmd.Start()
   r := bufio.NewReader(stdout)
   var line []byte ;
+  var match [][]byte
+  rx := regexp.MustCompile( `^(.+)\s*=\s*(.*)$` )
   for ; e == nil ; line, _, e = r.ReadLine() {
     fmt.Println( string(line) )
+    match = rx.FindSubmatch( line )
+    if match == nil {
+      fmt.Printf( "no match: %s", string(line) )
+    } else {
+      fmt.Printf( "key: %s - value: %s\n", string( match[1] ),
+                   string( match[2]) ) ;
+    }
   }
-  if e = cmd.Wait() ; e != nil {
-    fmt.Println( e )
-  }
-  fmt.Println( "-----------------------" )
-
-  /*
-  rxlime := regexp.Must
-  re := regexp.MustCompile( `^(.+)\s*=\s*(.*)$` )
-  */
 
   files, e := ioutil.ReadDir( cfgdir )
-  if ( e!= nil ) {
+  if ( e != nil ) {
     fmt.Printf( "ReadDir %s failed: %s\n", cfgdir, e.Error() )
     syscall.Exit(1)
   }
