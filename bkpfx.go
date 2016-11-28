@@ -1,6 +1,6 @@
 package main
 
-import ( 
+import (
   "bufio"
   "fmt"
   "io/ioutil"
@@ -20,8 +20,9 @@ func main(){
   // copy files: /etc/postfix directory + possibly /etc/aliases
 
   // start postconf and read output
-
-  cmd := exec.Command( "/usr/sbin/postconf", "-n" )
+  var configmap map[string]string
+  configmap = make( map[string]string )
+  cmd := exec.Command( "/usr/sbin/postconf" )
   stdout, e := cmd.StdoutPipe()
   cmd.Start()
   r := bufio.NewReader(stdout)
@@ -32,12 +33,22 @@ func main(){
     fmt.Println( string(line) )
     match = rx.FindSubmatch( line )
     if match == nil {
-      fmt.Printf( "no match: %s", string(line) )
+      fmt.Printf( "no match: %s\n", string(line) )
     } else {
       fmt.Printf( "key: %s - value: %s\n", string( match[1] ),
-                   string( match[2]) ) ;
+                   string( match[2]) )
+      configmap[ string( match[1] ) ]  = string( match[2] )
     }
   }
+
+  for key, value := range configmap {
+    fmt.Println("Key:", key, "Value:", value)
+  }
+
+  /* files do not need to be in config_directory, but usually this
+     is only aliases, so only lookup alias_database, then copy files from
+     config_directory
+  */
 
   files, e := ioutil.ReadDir( cfgdir )
   if ( e != nil ) {
