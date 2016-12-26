@@ -15,28 +15,33 @@ import (
 var rxvar = regexp.MustCompile( `\$\w+` ) 
 var inited bool = false
 
-func substitutevars( val *string, cfgm *map[string]string ) {
+func substitutevars( val *string, cfgm map[string]string ) {
   if ( inited == false ) { 
     inited = true
   }
   var loc []int 
-  loc = rxvar.FindIndex( []byte( *val ) ) 
+  var bval []byte ;
+  bval=[]byte(*val)
+  loc = rxvar.FindStringIndex( *val ) 
   if ( loc != nil ) {
+println( "match loc[0]: ", loc[0], "loc[1]: ", loc[1] )
     var before []byte
     var after []byte
     if ( loc[0] > 0 ) {
-      before = val[ : loc[0]-1 ]
+      before = bval[ : loc[0]-1 ]
     }
-    if ( loc[1] < val.len ) {
-      after=val[ loc[1]+1 : ]
+    if ( loc[1] < len( bval ) ) {
+      after=bval[ loc[1]+1 : ]
     }
     var tmp string
     var newval string
-
+    var bkey []byte
+    bkey = bval[ loc[0]+1:loc[1] ] 
+    
+    var key string
+    key=string(bkey )
     tmp = "found var: "+ *val + "-> "
-    newval = string( before ) +
-             cfgm[ string( val[ loc[0]+1:loc[1] ] ) ] +
-             string( after )
+    newval = string( before ) + cfgm[ key ] + string( after )
     *val = tmp + newval
   }
   // return val 
@@ -103,7 +108,7 @@ func main(){
   fmt.Println( "------------------" ) 
   // susbstitute $config_directory
   for key, value := range configmap {
-    substitutevars( &value )
+    substitutevars( &value, configmap )
     fmt.Println("Key:", key, "Value:", value)
   }
 }
