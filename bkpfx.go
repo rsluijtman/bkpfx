@@ -11,16 +11,13 @@ import (
 )
 
 
-// var rxvar = regexp.MustCompile( `\$[0-9a-zA-Z_]+` ) 
-var rxvar = regexp.MustCompile( `\$\w+` ) 
-var inited bool = false
+var rxvar = regexp.MustCompile( `\$[0-9a-zA-Z_]+` ) 
+// var rxvar = regexp.MustCompile( `\$\w+` ) 
 
 func substitutevars( val *string, cfgm map[string]string ) {
-  if ( inited == false ) { 
-    inited = true
-  }
   var loc []int 
   var bval []byte ;
+
   bval=[]byte(*val)
   loc = rxvar.FindStringIndex( *val ) 
   if ( loc != nil ) {
@@ -31,7 +28,7 @@ println( "match loc[0]: ", loc[0], "loc[1]: ", loc[1] )
       before = bval[ : loc[0]-1 ]
     }
     if ( loc[1] < len( bval ) ) {
-      after=bval[ loc[1]+1 : ]
+      after=bval[ loc[1] : ]
     }
     var tmp string
     var newval string
@@ -41,7 +38,15 @@ println( "match loc[0]: ", loc[0], "loc[1]: ", loc[1] )
     var key string
     key=string(bkey )
     tmp = "found var: "+ *val + "-> "
+    if v,e := cfgm[key];e {
+      println( "replacing key: ",key,"with value:",v )
+    } else {
+      println( "cfgm",key,"is not defined" )
+      return
+    }
+
     newval = string( before ) + cfgm[ key ] + string( after )
+    // newval = string( before ) + v + string( after )
     *val = tmp + newval
   }
   // return val 
@@ -74,17 +79,19 @@ func main(){
     if match == nil {
       fmt.Printf( "no match: %s\n", string(line) )
     } else {
-      fmt.Printf( "key: %s - value: %s\n", string( match[1] ),
-                   string( match[2]) )
+/*      fmt.Printf( "key: %s - value: %s\n", string( match[1] ),
+                   string( match[2]) ) */
       configmap[ string( match[1] ) ]  = string( match[2] )
       configkey = append( configkey, string(match[1]) ) 
     }
   }
   fmt.Println( "------------------" ) 
+/*
   for key, value := range configmap {
     fmt.Println("Key:", key, "Value:", value)
   }
-  fmt.Println( "------------------" ) 
+
+  fmt.Println( "------------------" ) */
   sort.Strings( configkey )
   for _, key := range( configkey ) {
     fmt.Println( "key:", key, "value:", configmap[key] )
