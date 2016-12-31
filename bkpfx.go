@@ -27,6 +27,7 @@ func substitutevars( val *string, cfgm map[string]string ) {
     for k,v := range( cfgm ) {
       println( k,v, cfgm[k] )
     }
+    println( "------------------" )
   }
   bval=[]byte(*val)
   loc = rxvar.FindStringIndex( *val ) 
@@ -36,7 +37,7 @@ println( "match loc[0]: ", loc[0], "loc[1]: ", loc[1] )
     var before []byte
     var after []byte
     if ( loc[0] > 0 ) {
-      before = bval[ : loc[0]-1 ]
+      before = bval[ : loc[0] ]
     }
     if ( loc[1] < len( bval ) ) {
       after=bval[ loc[1] : ]
@@ -54,17 +55,7 @@ println( "match loc[0]: ", loc[0], "loc[1]: ", loc[1] )
       println( "replacing key: ",key,"with value:",v )
     } else {
       println( "cfgm",key,"is not defined",e )
-   /*   if v,e := (*cm)[key]; e {
-        println( "replacing key: ",key,"with *cm value:",v )
-      } else {
-        println( "*cm",key,"is not defined",e )
-        if v,e = (*cm)[key]; e {
-          println( "replacing key: ",key,"with cm value:",v )
-        } else {
-          println( "cm",key,"is not defined",e )
-          return
-        }
-      } */ return
+      return
     }
 
     newval = string( before ) + cfgm[ key ] + string( after )
@@ -145,5 +136,6 @@ func main(){
   for key, value := range configmap {
     substitutevars( &value, configmap )
     fmt.Println("Key:", key, "Value:", value)
+    println( key,configmap[key])
   }
 }
