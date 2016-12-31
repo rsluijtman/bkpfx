@@ -13,14 +13,25 @@ import (
 
 var rxvar = regexp.MustCompile( `\$[0-9a-zA-Z_]+` ) 
 // var rxvar = regexp.MustCompile( `\$\w+` ) 
+var notfirst bool;
 
 func substitutevars( val *string, cfgm map[string]string ) {
   var loc []int 
   var bval []byte ;
+  // var cfgm map[string]string
 
+  // cfgm=*cm
+
+  if notfirst==false {
+    notfirst=true
+    for k,v := range( cfgm ) {
+      println( k,v, cfgm[k] )
+    }
+  }
   bval=[]byte(*val)
   loc = rxvar.FindStringIndex( *val ) 
   if ( loc != nil ) {
+println("val :",val,*val)
 println( "match loc[0]: ", loc[0], "loc[1]: ", loc[1] )
     var before []byte
     var after []byte
@@ -36,13 +47,24 @@ println( "match loc[0]: ", loc[0], "loc[1]: ", loc[1] )
     bkey = bval[ loc[0]+1:loc[1] ] 
     
     var key string
-    key=string(bkey )
+    // key has/needs trailing space !!
+    key=string(bkey ) + " "
     tmp = "found var: "+ *val + "-> "
     if v,e := cfgm[key];e {
       println( "replacing key: ",key,"with value:",v )
     } else {
-      println( "cfgm",key,"is not defined" )
-      return
+      println( "cfgm",key,"is not defined",e )
+   /*   if v,e := (*cm)[key]; e {
+        println( "replacing key: ",key,"with *cm value:",v )
+      } else {
+        println( "*cm",key,"is not defined",e )
+        if v,e = (*cm)[key]; e {
+          println( "replacing key: ",key,"with cm value:",v )
+        } else {
+          println( "cm",key,"is not defined",e )
+          return
+        }
+      } */ return
     }
 
     newval = string( before ) + cfgm[ key ] + string( after )
@@ -54,7 +76,7 @@ println( "match loc[0]: ", loc[0], "loc[1]: ", loc[1] )
 
 var cfgdir = "/etc/postfix"
 func main(){
-
+  var debug int
   e := syscall.Chdir( cfgdir )
   if  e != nil  {
     fmt.Printf( "chdir %s failed: %s\n", cfgdir, e.Error() )
@@ -73,8 +95,12 @@ func main(){
   var line []byte ;
   var match [][]byte
   rx := regexp.MustCompile( `^(.+)\s*=\s*(.*)$` )
+  debug=9
   for ; e == nil ; line, _, e = r.ReadLine() {
-    fmt.Println( string(line) )
+   
+    if debug > 10 {
+      fmt.Println( string(line) )
+    }
     match = rx.FindSubmatch( line )
     if match == nil {
       fmt.Printf( "no match: %s\n", string(line) )
@@ -92,11 +118,13 @@ func main(){
   }
 
   fmt.Println( "------------------" ) */
-  sort.Strings( configkey )
-  for _, key := range( configkey ) {
-    fmt.Println( "key:", key, "value:", configmap[key] )
+  if debug > 10 {
+    sort.Strings( configkey )
+    for _, key := range( configkey ) {
+      fmt.Println( "key:", key, "value:", configmap[key] )
+    }
+    fmt.Println( "------------------" ) 
   }
-  fmt.Println( "------------------" ) 
 
   /* files do not need to be in config_directory, but usually this
      is only aliases, so only lookup alias_database, then copy files from
