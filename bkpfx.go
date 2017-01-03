@@ -42,7 +42,7 @@ println( "match loc[0]: ", loc[0], "loc[1]: ", loc[1] )
     if ( loc[1] < len( bval ) ) {
       after=bval[ loc[1] : ]
     }
-    var tmp string
+ //   var tmp string
     var newval string
     var bkey []byte
     bkey = bval[ loc[0]+1:loc[1] ] 
@@ -50,7 +50,7 @@ println( "match loc[0]: ", loc[0], "loc[1]: ", loc[1] )
     var key string
     // key has/needs trailing space !!
     key=string(bkey ) + " "
-    tmp = "found var: "+ *val + "-> "
+    // tmp = "found var: "+ *val + "-> "
     if v,e := cfgm[key];e {
       println( "replacing key: ",key,"with value:",v )
     } else {
@@ -60,7 +60,9 @@ println( "match loc[0]: ", loc[0], "loc[1]: ", loc[1] )
 
     newval = string( before ) + cfgm[ key ] + string( after )
     // newval = string( before ) + v + string( after )
-    *val = tmp + newval
+    // *val = tmp + newval
+    *val = newval
+    cfgm[key]=*val
   }
   // return val 
 }
