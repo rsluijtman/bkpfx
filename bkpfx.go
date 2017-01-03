@@ -49,14 +49,16 @@ func substitutevars( val *string, cfgm map[string]string ) {
     
     var key string
     key=string(bkey )
-    if v,e := cfgm[key];e {
-      println( "replacing key: ",key,"with value:",v )
-    } else {
-      println( "cfgm",key,"is not defined",e )
-      return
+    var v string
+    var e bool
+    if v,e = cfgm[key]; !e {
+      println( "cfgm",key,"is not defined" )
+      v = "${" + key + "}"
     }
-    newval = string( before ) + cfgm[ key ] + string( after )
+    println( "replacing key: ",key,"with value:",v )
+    newval = string( before ) + v + string( after )
     *val = newval
+    substitutevars( val, cfgm ) 
   }
 }
 
