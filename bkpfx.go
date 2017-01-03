@@ -18,9 +18,6 @@ var notfirst bool;
 func substitutevars( val *string, cfgm map[string]string ) {
   var loc []int 
   var bval []byte ;
-  // var cfgm map[string]string
-
-  // cfgm=*cm
 
   if notfirst==false {
     notfirst=true
@@ -42,14 +39,14 @@ println( "match loc[0]: ", loc[0], "loc[1]: ", loc[1] )
     if ( loc[1] < len( bval ) ) {
       after=bval[ loc[1] : ]
     }
- //   var tmp string
     var newval string
     var bkey []byte
     bkey = bval[ loc[0]+1:loc[1] ] 
     
     var key string
     // key has/needs trailing space !!
-    key=string(bkey ) + " "
+    // key=string(bkey ) + " "
+    key=string(bkey )
     // tmp = "found var: "+ *val + "-> "
     if v,e := cfgm[key];e {
       println( "replacing key: ",key,"with value:",v )
@@ -62,7 +59,6 @@ println( "match loc[0]: ", loc[0], "loc[1]: ", loc[1] )
     // newval = string( before ) + v + string( after )
     // *val = tmp + newval
     *val = newval
-    cfgm[key]=*val
   }
   // return val 
 }
@@ -87,7 +83,7 @@ func main(){
   r := bufio.NewReader(stdout)
   var line []byte ;
   var match [][]byte
-  rx := regexp.MustCompile( `^(.+)\s*=\s*(.*)$` )
+  rx := regexp.MustCompile( `^(.*\S)\s*=\s*(.*)$` )
   debug=9
   for ; e == nil ; line, _, e = r.ReadLine() {
    
@@ -135,7 +131,9 @@ func main(){
 
   fmt.Println( "------------------" ) 
   // susbstitute $config_directory
-  for key, value := range configmap {
+  var key string
+  var value string
+  for key, value = range configmap {
     substitutevars( &value, configmap )
     fmt.Println("Key:", key, "Value:", value)
     println( key,configmap[key])
